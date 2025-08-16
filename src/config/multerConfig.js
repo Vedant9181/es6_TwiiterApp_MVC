@@ -1,21 +1,15 @@
 import multer from "multer";
-import { CloudinaryStorage } from "multer-storage-cloudinary";  
-import cloudinary from "./cloudinaryConfig.js";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "./cloudinaryConfig.cjs"; // Import the cloudinary configuration
 import path from "path";
-
-export default function uploaderMiddleware(folderName) {
+function uploadMiddleware(folderName) {
   const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: (req, file) => {
-      if (!file) {
-        throw new Error("No file provided");
-      }
-      console.log(file);
-
       const folderPath = `${folderName.trim()}`; // Update the folder path here
       const fileExtension = path.extname(file.originalname).substring(1);
       const publicId = `${file.fieldname}-${Date.now()}`;
-
+      
       return {
         folder: folderPath,
         public_id: publicId,
@@ -23,11 +17,13 @@ export default function uploaderMiddleware(folderName) {
       };
     },
   });
-  console.log("Storage configured with folder:", folderName);
-  return multer({ storage: storage })
+
+  return multer({
+    storage: storage
+  });
 }
 
+uploadMiddleware("tweetImages"); // Call the function to create the upload middleware
+const upload = uploadMiddleware("tweetImages");
 
-// const upload = uploaderMiddleware("imageTweet");
-
-// export default upload;
+export default upload; // Export the configured upload middleware
